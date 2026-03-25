@@ -28,14 +28,16 @@ A modern, high-performance Project Management Dashboard built with React, Redux 
     ```bash
     npm install
     ```
-3.  **Start the development server**:
+3.  **Run the project (Vite + Mock DB)**:
     ```bash
     npm run dev
     ```
+    *This will start both the React frontend (port 5173) and the JSON-Server database (port 5000) concurrently.*
 4.  **Open the app**: Navigate to `http://localhost:5173` in your browser.
 
 ## Board View Guidelines
 
+- **Database File**: The persistent data is stored in `db.json`. Any changes you make in the app (adding employees, moving tasks) will be reflected in this file instantly.
 - **Drag and Drop**: Simply grab a task card and move it between columns to update its status.
 - **Filtering**: Use the project dropdown at the top right to filter tasks by project.
 - **Task Cards**: Each card displays the project tag, task title, main reference image, assignee, and ETA.

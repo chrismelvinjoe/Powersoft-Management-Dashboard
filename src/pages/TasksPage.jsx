@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Plus, Edit2, Trash2, Calendar, User, Layers, Image as ImageIcon, Search, Filter } from 'lucide-react';
-import { addTask, updateTask, deleteTask } from '../store/taskSlice';
-import { updateProject } from '../store/projectSlice';
+import { fetchTasks, addTaskAsync, updateTaskAsync, deleteTaskAsync } from '../store/taskSlice';
+import { updateProjectAsync } from '../store/projectSlice';
 import PageHeader from '../components/PageHeader';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
@@ -125,9 +125,9 @@ const TasksPage = () => {
     }
 
     if (editingTask) {
-      dispatch(updateTask({ ...finalData, id: editingTask.id }));
+      dispatch(updateTaskAsync({ ...finalData, id: editingTask.id }));
     } else {
-      dispatch(addTask({ ...finalData, id: Date.now().toString() }));
+      dispatch(addTaskAsync({ ...finalData, id: Date.now().toString() }));
     }
     setIsModalOpen(false);
     reset();
@@ -137,7 +137,7 @@ const TasksPage = () => {
     e.stopPropagation();
     if (!id) return;
     if (window.confirm('Delete this task?')) {
-      dispatch(deleteTask(id));
+      dispatch(deleteTaskAsync(id));
     }
   };
 

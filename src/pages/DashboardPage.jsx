@@ -39,7 +39,7 @@ const DashboardPage = () => {
       return;
     }
 
-    dispatch(moveTask({ 
+    dispatch(moveTaskAsync({ 
       taskId: draggableId, 
       newStatus: destination.droppableId 
     }));

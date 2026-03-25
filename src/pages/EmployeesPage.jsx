@@ -72,9 +72,9 @@ const EmployeesPage = () => {
     }
 
     if (editingEmployee) {
-      dispatch(updateEmployee({ ...finalData, id: editingEmployee.id }));
+      dispatch(updateEmployeeAsync({ ...finalData, id: editingEmployee.id }));
     } else {
-      dispatch(addEmployee({ ...finalData, id: Date.now().toString() }));
+      dispatch(addEmployeeAsync({ ...finalData, id: Date.now().toString() }));
     }
     setIsModalOpen(false);
     reset();
@@ -84,7 +84,7 @@ const EmployeesPage = () => {
     e.stopPropagation();
     if (!id) return;
     if (window.confirm('Are you sure you want to delete this employee?')) {
-      dispatch(deleteEmployee(id));
+      dispatch(deleteEmployeeAsync(id));
     }
   };
 

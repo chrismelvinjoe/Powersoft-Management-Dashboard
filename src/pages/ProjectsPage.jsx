@@ -4,7 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Plus, Edit2, Trash2, Calendar, Users as UsersIcon, Clock } from 'lucide-react';
-import { addProject, updateProject, deleteProject } from '../store/projectSlice';
+import { fetchProjects, addProjectAsync, updateProjectAsync, deleteProjectAsync } from '../store/projectSlice';
 import PageHeader from '../components/PageHeader';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
@@ -96,9 +96,9 @@ const ProjectsPage = () => {
     }
 
     if (editingProject) {
-      dispatch(updateProject({ ...finalData, id: editingProject.id }));
+      dispatch(updateProjectAsync({ ...finalData, id: editingProject.id }));
     } else {
-      dispatch(addProject({ ...finalData, id: Date.now().toString() }));
+      dispatch(addProjectAsync({ ...finalData, id: Date.now().toString() }));
     }
     setIsModalOpen(false);
     reset();
@@ -108,7 +108,7 @@ const ProjectsPage = () => {
     e.stopPropagation();
     if (!id) return;
     if (window.confirm('Delete this project and all its associated data?')) {
-      dispatch(deleteProject(id));
+      dispatch(deleteProjectAsync(id));
     }
   };
 

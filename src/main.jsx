@@ -5,9 +5,14 @@ import { BrowserRouter } from 'react-router-dom';
 import store from './store';
 import App from './App';
 import './styles/global.css';
-import { seedDatabase } from './seedDatabase';
+import { fetchEmployees } from './store/employeeSlice';
+import { fetchProjects } from './store/projectSlice';
+import { fetchTasks } from './store/taskSlice';
 
-seedDatabase(store);
+// Initial data fetch from Mock DB
+store.dispatch(fetchEmployees());
+store.dispatch(fetchProjects());
+store.dispatch(fetchTasks());
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

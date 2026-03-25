@@ -1,0 +1,53 @@
+{
+  "employees": [
+    {
+      "id": "emp-1",
+      "name": "Alex Johnson",
+      "position": "Lead Developer",
+      "email": "alex@powersoft.com",
+      "profileImage": "https://i.pravatar.cc/150?u=alex"
+    },
+    {
+      "id": "emp-2",
+      "name": "Sarah Smith",
+      "position": "UI Designer",
+      "email": "sarah@powersoft.com",
+      "profileImage": "https://i.pravatar.cc/150?u=sarah"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-1",
+      "title": "Dashboard Redesign",
+      "description": "A complete overhaul of the internal management tool.",
+      "logo": "https://cdn-icons-png.flaticon.com/512/5968/5968382.png",
+      "startDate": "2026-04-01",
+      "startTime": "09:00",
+      "endDate": "2026-06-30",
+      "endTime": "18:00",
+      "assignedEmployees": ["emp-1", "emp-2"]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Develop Authentication Logic",
+      "description": "Implement JWT based auth and route protection.",
+      "projectId": "proj-1",
+      "assignedEmployeeId": "emp-1",
+      "eta": "2026-04-15",
+      "status": "In Progress",
+      "referenceImages": ["https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/www/public/og.png"]
+    },
+    {
+      "id": "task-2",
+      "title": "Design Kanban Board",
+      "description": "Create high-fidelity mockups for the drag and drop interface.",
+      "projectId": "proj-1",
+      "assignedEmployeeId": "emp-2",
+      "eta": "2026-04-10",
+      "status": "Completed",
+      "referenceImages": ["https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/www/public/og.png"]
+    }
+  ]
+}

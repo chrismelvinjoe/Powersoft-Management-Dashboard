@@ -1,30 +1,64 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5000/employees';
+
+export const fetchEmployees = createAsyncThunk('employees/fetchEmployees', async () => {
+  const response = await axios.get(API_URL);
+  return response.data;
+});
+
+export const addEmployeeAsync = createAsyncThunk('employees/addEmployee', async (employee) => {
+  const response = await axios.post(API_URL, employee);
+  return response.data;
+});
+
+export const updateEmployeeAsync = createAsyncThunk('employees/updateEmployee', async (employee) => {
+  const response = await axios.put(`${API_URL}/${employee.id}`, employee);
+  return response.data;
+});
+
+export const deleteEmployeeAsync = createAsyncThunk('employees/deleteEmployee', async (id) => {
+  await axios.delete(`${API_URL}/${id}`);
+  return id;
+});
 
 const initialState = {
   employees: [],
+  status: 'idle',
+  error: null,
 };
 
 const employeeSlice = createSlice({
   name: 'employees',
   initialState,
-  reducers: {
-    addEmployee: (state, action) => {
-      state.employees.push(action.payload);
-    },
-    updateEmployee: (state, action) => {
-      const index = state.employees.findIndex(emp => emp.id === action.payload.id);
-      if (index !== -1) {
-        state.employees[index] = action.payload;
-      }
-    },
-    deleteEmployee: (state, action) => {
-      state.employees = state.employees.filter(emp => emp.id !== action.payload);
-    },
-    setEmployees: (state, action) => {
-      state.employees = action.payload;
-    }
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchEmployees.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchEmployees.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.employees = action.payload;
+      })
+      .addCase(fetchEmployees.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(addEmployeeAsync.fulfilled, (state, action) => {
+        state.employees.push(action.payload);
+      })
+      .addCase(updateEmployeeAsync.fulfilled, (state, action) => {
+        const index = state.employees.findIndex(emp => emp.id === action.payload.id);
+        if (index !== -1) {
+          state.employees[index] = action.payload;
+        }
+      })
+      .addCase(deleteEmployeeAsync.fulfilled, (state, action) => {
+        state.employees = state.employees.filter(emp => emp.id !== action.payload);
+      });
   },
 });
 
-export const { addEmployee, updateEmployee, deleteEmployee, setEmployees } = employeeSlice.actions;
 export default employeeSlice.reducer;
