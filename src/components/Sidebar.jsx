@@ -3,9 +3,9 @@ import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Users, FolderKanban, CheckSquare } from 'lucide-react';
 import './Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, closeSidebar }) => {
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <div className="logo">
           <FolderKanban size={32} color="#6366f1" />
@@ -13,22 +13,19 @@ const Sidebar = () => {
         </div>
       </div>
       <nav className="sidebar-nav">
-        <NavLink to="/" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
+        <NavLink to="/" onClick={closeSidebar} className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
           <LayoutDashboard size={20} />
           <span>Dashboard</span>
         </NavLink>
-        <NavLink to="/projects" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
+        <NavLink to="/projects" onClick={closeSidebar} className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
           <FolderKanban size={20} />
           <span>Projects</span>
         </NavLink>
-        <NavLink to="/projects" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')} style={{marginLeft: '1rem', fontSize: '0.8rem'}}>
-          <span>+ Add Project</span>
-        </NavLink>
-        <NavLink to="/employees" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
+        <NavLink to="/employees" onClick={closeSidebar} className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
           <Users size={20} />
           <span>Employees</span>
         </NavLink>
-        <NavLink to="/tasks" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
+        <NavLink to="/tasks" onClick={closeSidebar} className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
           <CheckSquare size={20} />
           <span>My Tasks</span>
         </NavLink>
