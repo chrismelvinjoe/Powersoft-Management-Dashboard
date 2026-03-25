@@ -15,7 +15,7 @@ const schema = yup.object().shape({
   name: yup.string().required('Name is required'),
   position: yup.string().required('Position is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
-  profileImage: yup.string().required('Profile image is required'),
+  profileImage: yup.string(),
 });
 
 const EmployeesPage = () => {
@@ -67,10 +67,15 @@ const EmployeesPage = () => {
       return;
     }
 
+    const finalData = { ...data };
+    if (!finalData.profileImage) {
+      finalData.profileImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random&color=fff&size=200`;
+    }
+
     if (editingEmployee) {
-      dispatch(updateEmployee({ ...data, id: editingEmployee.id }));
+      dispatch(updateEmployee({ ...finalData, id: editingEmployee.id }));
     } else {
-      dispatch(addEmployee({ ...data, id: Date.now().toString() }));
+      dispatch(addEmployee({ ...finalData, id: Date.now().toString() }));
     }
     setIsModalOpen(false);
     reset();

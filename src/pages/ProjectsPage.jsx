@@ -14,7 +14,7 @@ import './ProjectsPage.css';
 const schema = yup.object().shape({
   title: yup.string().required('Title is required'),
   description: yup.string().required('Description is required'),
-  logo: yup.string().required('Project logo is required'),
+  logo: yup.string(),
   startDate: yup.string().required('Start date is required'),
   startTime: yup.string().required('Start time is required'),
   endDate: yup.string().required('End date is required'),
@@ -90,10 +90,15 @@ const ProjectsPage = () => {
   };
 
   const onSubmit = (data) => {
+    const finalData = { ...data };
+    if (!finalData.logo) {
+      finalData.logo = `https://dummyimage.com/200/6366f1/ffffff&text=${encodeURIComponent(data.title.substring(0, 2).toUpperCase())}`;
+    }
+
     if (editingProject) {
-      dispatch(updateProject({ ...data, id: editingProject.id }));
+      dispatch(updateProject({ ...finalData, id: editingProject.id }));
     } else {
-      dispatch(addProject({ ...data, id: Date.now().toString() }));
+      dispatch(addProject({ ...finalData, id: Date.now().toString() }));
     }
     setIsModalOpen(false);
     reset();

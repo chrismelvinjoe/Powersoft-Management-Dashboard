@@ -18,7 +18,7 @@ const schema = yup.object().shape({
   projectId: yup.string().required('Project selection is required'),
   assignedEmployeeId: yup.string().required('Employee selection is required'),
   eta: yup.string().required('ETA is required'),
-  referenceImages: yup.array().of(yup.string()).min(1, 'At least one reference image is required'),
+  referenceImages: yup.array().of(yup.string()),
 });
 
 const TasksPage = () => {
@@ -123,10 +123,15 @@ const TasksPage = () => {
   const onSubmit = (data) => {
     // Employee is already validated to be part of the project via the dropdown filtering
 
+    const finalData = { ...data };
+    if (!finalData.referenceImages || finalData.referenceImages.length === 0) {
+      finalData.referenceImages = ['https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500&q=80']; // High quality checklist/task image
+    }
+
     if (editingTask) {
-      dispatch(updateTask({ ...data, id: editingTask.id }));
+      dispatch(updateTask({ ...finalData, id: editingTask.id }));
     } else {
-      dispatch(addTask({ ...data, id: Date.now().toString() }));
+      dispatch(addTask({ ...finalData, id: Date.now().toString() }));
     }
     setIsModalOpen(false);
     reset();
