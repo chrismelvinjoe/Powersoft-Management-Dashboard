@@ -14,7 +14,11 @@ export const saveState = (key, state) => {
   try {
     const serializedState = JSON.stringify(state);
     localStorage.setItem(key, serializedState);
-  } catch {
-    // Ignore write errors
+  } catch (err) {
+    if (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      console.error('Persistence failed: LocalStorage quota exceeded. Images might be too large.', err);
+    } else {
+      console.error('Persistence failed:', err);
+    }
   }
 };

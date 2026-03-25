@@ -1,12 +1,16 @@
 import { addEmployee } from './store/employeeSlice';
 import { addProject } from './store/projectSlice';
 import { addTask } from './store/taskSlice';
+import { setInitialized } from './store/appSlice';
 
 export const seedDatabase = (store) => {
   const state = store.getState();
   
-  // Only seed if projects and employees are empty to avoid duplicates
-  if (state.projects.projects.length > 0 || state.employees.employees.length > 0) return;
+  // Only seed if not already initialized
+  if (state.app.isInitialized) return;
+
+  // Mark as initialized immediately to prevent concurrent seeding
+  store.dispatch(setInitialized());
 
   const emp1Id = 'emp-1';
   const emp2Id = 'emp-2';
