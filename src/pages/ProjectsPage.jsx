@@ -188,7 +188,11 @@ const ProjectsPage = () => {
               {logoImg ? (
                 <img src={logoImg} alt="Preview" className="image-preview" />
               ) : (
-                <div className="image-placeholder">No Logo Selected</div>
+                <img 
+                  src={`https://dummyimage.com/200/6366f1/ffffff&text=${encodeURIComponent((watch('title') || 'PR').substring(0, 2).toUpperCase())}`} 
+                  alt="Default Logo" 
+                  className="image-preview" 
+                />
               )}
               <div className="upload-controls">
                 <input 

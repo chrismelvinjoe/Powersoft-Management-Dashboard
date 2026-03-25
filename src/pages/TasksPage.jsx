@@ -294,12 +294,18 @@ const TasksPage = () => {
           <div className="image-upload-group">
             <label className="input-label">Reference Images</label>
             <div className={`multi-image-preview ${errors.referenceImages ? 'input-error' : ''}`}>
-              {referenceImages.map((img, idx) => (
-                <div key={idx} className="preview-thumb">
-                  <img src={img} alt="Ref" />
-                  <button type="button" className="remove-thumb" onClick={() => removeImage(idx)}><Trash2 size={12} /></button>
+              {referenceImages.length > 0 ? (
+                referenceImages.map((img, idx) => (
+                  <div key={idx} className="preview-thumb">
+                    <img src={img} alt="Ref" />
+                    <button type="button" className="remove-thumb" onClick={() => removeImage(idx)}><Trash2 size={12} /></button>
+                  </div>
+                ))
+              ) : (
+                <div className="preview-thumb">
+                  <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500&q=80" alt="Default Task" />
                 </div>
-              ))}
+              )}
               <label className="upload-add-btn">
                 <Plus size={24} />
                 <input type="file" multiple accept="image/*" hidden onChange={handleImagesChange} />

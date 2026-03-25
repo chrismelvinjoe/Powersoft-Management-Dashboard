@@ -158,7 +158,11 @@ const EmployeesPage = () => {
               {profileImg ? (
                 <img src={profileImg} alt="Preview" className="image-preview" />
               ) : (
-                <div className="image-placeholder">No Image Selected</div>
+                <img 
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(watch('name') || 'User')}&background=random&color=fff&size=200`} 
+                  alt="Default Preview" 
+                  className="image-preview" 
+                />
               )}
               <div className="upload-controls">
                 <input 
