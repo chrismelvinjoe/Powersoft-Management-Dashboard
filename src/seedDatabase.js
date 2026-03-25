@@ -6,10 +6,8 @@ import { setInitialized } from './store/appSlice';
 export const seedDatabase = (store) => {
   const state = store.getState();
   
-  // Only seed if not already initialized
   if (state.app.isInitialized) return;
 
-  // Mark as initialized immediately to prevent concurrent seeding
   store.dispatch(setInitialized());
 
   const emp1Id = 'emp-1';

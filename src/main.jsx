@@ -7,7 +7,6 @@ import App from './App';
 import './styles/global.css';
 import { seedDatabase } from './seedDatabase';
 
-// Seed the database if empty
 seedDatabase(store);
 
 ReactDOM.createRoot(document.getElementById('root')).render(

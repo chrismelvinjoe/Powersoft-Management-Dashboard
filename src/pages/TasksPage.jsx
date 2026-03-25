@@ -32,7 +32,6 @@ const TasksPage = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   
-  // Search and Filter State
   const [searchQuery, setSearchQuery] = useState('');
   const [filterProject, setFilterProject] = useState('all');
   const [filterAssignee, setFilterAssignee] = useState('all');
@@ -61,7 +60,6 @@ const TasksPage = () => {
   const selectedProjectId = watch('projectId');
   const referenceImages = watch('referenceImages') || [];
 
-  // Show only employees already assigned to the select project
   const availableEmployees = React.useMemo(() => {
     if (!selectedProjectId) return [];
     const project = projects.find(p => p.id === selectedProjectId);
@@ -69,7 +67,6 @@ const TasksPage = () => {
     return employees.filter(emp => project.assignedEmployees.includes(emp.id));
   }, [selectedProjectId, employees, projects]);
 
-  // Synchronize assignedEmployeeId if it becomes invalid for the selected project
   useEffect(() => {
     if (selectedProjectId) {
       const currentEmpId = watch('assignedEmployeeId');
@@ -121,11 +118,10 @@ const TasksPage = () => {
   };
 
   const onSubmit = (data) => {
-    // Employee is already validated to be part of the project via the dropdown filtering
 
     const finalData = { ...data };
     if (!finalData.referenceImages || finalData.referenceImages.length === 0) {
-      finalData.referenceImages = ['https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500&q=80']; // High quality checklist/task image
+      finalData.referenceImages = ['https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500&q=80'];
     }
 
     if (editingTask) {

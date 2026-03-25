@@ -2,7 +2,7 @@
 
 A modern, high-performance Project Management Dashboard built with React, Redux Toolkit, and @hello-pangea/dnd. This project was developed as part of a technical interview task for PowerSoft.
 
-## 🚀 Features
+## Features
 
 - **Employee Management (CRUD)**: Create, view, edit, and delete employees with profile images and unique email validation.
 - **Project Management (CRUD)**: Manage projects with logos, date/time tracking, and multi-employee assignment.
@@ -11,7 +11,7 @@ A modern, high-performance Project Management Dashboard built with React, Redux 
 - **Data Persistence**: State is automatically persisted to LocalStorage, ensuring data survives page reloads.
 - **Premium UI/UX**: Custom design system using Vanilla CSS with glassmorphism effects, responsive layouts, and smooth micro-animations.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: React (Vite)
 - **State Management**: Redux Toolkit
@@ -21,7 +21,7 @@ A modern, high-performance Project Management Dashboard built with React, Redux 
 - **Icons**: Lucide React
 - **Styling**: Vanilla CSS (CSS Modules approach)
 
-## 📦 Setup Instructions
+## Setup Instructions
 
 1.  **Clone the project** (or extract the files).
 2.  **Install dependencies**:
@@ -34,13 +34,13 @@ A modern, high-performance Project Management Dashboard built with React, Redux 
     ```
 4.  **Open the app**: Navigate to `http://localhost:5173` in your browser.
 
-## 📊 Board View Guidelines
+## Board View Guidelines
 
 - **Drag and Drop**: Simply grab a task card and move it between columns to update its status.
 - **Filtering**: Use the project dropdown at the top right to filter tasks by project.
 - **Task Cards**: Each card displays the project tag, task title, main reference image, assignee, and ETA.
 
-## 🛡️ Validation Rules
+## Validation Rules
 
 - All form fields are mandatory.
 - Email addresses must be valid and unique across the employee directory.

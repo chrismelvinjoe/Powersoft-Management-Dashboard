@@ -51,11 +51,10 @@ body {
   }
   .main-content {
     padding: 1rem;
-    padding-top: 4.5rem; /* Space for mobile header */
+    padding-top: 4.5rem;
   }
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -73,7 +72,6 @@ body {
   background: var(--text-muted);
 }
 
-/* Action Buttons */
 .action-btn {
   background: var(--glass-bg);
   border: 1px solid var(--border-color);
@@ -103,7 +101,6 @@ body {
   border-color: #ef4444;
 }
 
-/* Select & Dropdown Styling */
 select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -113,8 +110,8 @@ select {
 }
 
 option {
-  background-color: #1e293b; /* Dark slate background for options */
-  color: #f8fafc; /* Light slate text */
+  background-color: #1e293b;
+  color: #f8fafc;
   padding: 10px;
 }
 

@@ -60,7 +60,6 @@ const EmployeesPage = () => {
   };
 
   const onSubmit = (data) => {
-    // Check if email is unique (excluding the current editing employee)
     const isEmailTaken = employees.some(emp => emp.email === data.email && emp.id !== editingEmployee?.id);
     if (isEmailTaken) {
       alert('Email already exists. Please use a unique email.');
