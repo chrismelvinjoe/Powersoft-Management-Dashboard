@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/tasks';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = `${API_BASE_URL}/tasks`;
 
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
   const response = await axios.get(API_URL);
@@ -68,6 +69,11 @@ const taskSlice = createSlice({
       })
       .addCase(deleteTaskAsync.fulfilled, (state, action) => {
         state.tasks = state.tasks.filter(t => t.id !== action.payload);
+      })
+      .addCase(deleteTaskAsync.rejected, (state, action) => {
+        if (action.meta.arg) {
+          state.tasks = state.tasks.filter(t => t.id !== action.meta.arg);
+        }
       })
       .addCase(moveTaskAsync.fulfilled, (state, action) => {
         const index = state.tasks.findIndex(t => t.id === action.payload.id);

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Calendar, User, Filter, MoreVertical, Briefcase, CheckSquare, FolderKanban } from 'lucide-react';
-import { moveTask } from '../store/taskSlice';
+import { moveTaskAsync } from '../store/taskSlice';
 import PageHeader from '../components/PageHeader';
 import './DashboardPage.css';
 
@@ -19,7 +19,7 @@ const DashboardPage = () => {
   const { tasks } = useSelector(state => state.tasks);
   const { projects } = useSelector(state => state.projects);
   const { employees } = useSelector(state => state.employees);
-  
+
   const [selectedProjectId, setSelectedProjectId] = useState('all');
 
   const filteredTasks = useMemo(() => {
@@ -39,23 +39,26 @@ const DashboardPage = () => {
       return;
     }
 
-    dispatch(moveTaskAsync({ 
-      taskId: draggableId, 
-      newStatus: destination.droppableId 
+    dispatch(moveTaskAsync({
+      taskId: draggableId,
+      newStatus: destination.droppableId
     }));
   };
 
-  const getEmployee = (id) => employees.find(e => e.id === id);
+  const getEmployees = (ids) => {
+    if (!ids || ids.length === 0) return [];
+    return ids.map(id => employees.find(e => e.id === id)).filter(Boolean);
+  };
 
   return (
     <div className="page-container dashboard-page">
-      <PageHeader 
-        title="Project Board" 
+      <PageHeader
+        title="Project Board"
         actions={
           <div className="filter-group">
             <Filter size={18} className="filter-icon" />
-            <select 
-              className="project-filter-select" 
+            <select
+              className="project-filter-select"
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
             >
@@ -134,9 +137,9 @@ const DashboardPage = () => {
                                 </span>
                                 <MoreVertical size={14} className="card-menu-icon" />
                               </div>
-                              
+
                               <h4 className="task-card-title">{task.title}</h4>
-                              
+
                               <div className="task-card-images">
                                 {task.referenceImages && task.referenceImages[0] && (
                                   <img src={task.referenceImages[0]} alt="Task Ref" className="task-main-img" />
@@ -145,14 +148,19 @@ const DashboardPage = () => {
 
                               <div className="task-card-footer">
                                 <div className="card-assignee">
-                                  {getEmployee(task.assignedEmployeeId) ? (
+                                  {task.assignedEmployeeIds && task.assignedEmployeeIds.length > 0 ? (
                                     <div className="assignee-avatar-group">
-                                      <img 
-                                        src={getEmployee(task.assignedEmployeeId).profileImage} 
-                                        alt="Assignee" 
-                                        title={getEmployee(task.assignedEmployeeId).name}
-                                      />
-                                      <span>{getEmployee(task.assignedEmployeeId).name.split(' ')[0]}</span>
+                                      {getEmployees(task.assignedEmployeeIds).slice(0, 3).map(emp => (
+                                        <img
+                                          key={emp.id}
+                                          src={emp.profileImage}
+                                          alt={emp.name}
+                                          title={emp.name}
+                                        />
+                                      ))}
+                                      {task.assignedEmployeeIds.length > 3 && (
+                                        <span className="assignee-more">+{task.assignedEmployeeIds.length - 3}</span>
+                                      )}
                                     </div>
                                   ) : (
                                     <div className="unassigned"><User size={12} /> Unassigned</div>

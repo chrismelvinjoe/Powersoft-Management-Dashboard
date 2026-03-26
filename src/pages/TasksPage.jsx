@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -16,7 +16,7 @@ const schema = yup.object().shape({
   title: yup.string().required('Title is required'),
   description: yup.string().required('Description is required'),
   projectId: yup.string().required('Project selection is required'),
-  assignedEmployeeId: yup.string().required('Employee selection is required'),
+  assignedEmployeeIds: yup.array().of(yup.string()).min(1, 'At least one employee must be selected'),
   eta: yup.string().required('ETA is required'),
   referenceImages: yup.array().of(yup.string()),
 });
@@ -27,6 +27,7 @@ const TasksPage = () => {
   const { projects } = useSelector(state => state.projects);
   const { employees } = useSelector(state => state.employees);
 
+  const fileInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -40,7 +41,7 @@ const TasksPage = () => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          task.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesProject = filterProject === 'all' || task.projectId === filterProject;
-    const matchesAssignee = filterAssignee === 'all' || task.assignedEmployeeId === filterAssignee;
+    const matchesAssignee = filterAssignee === 'all' || (task.assignedEmployeeIds && task.assignedEmployeeIds.includes(filterAssignee));
     return matchesSearch && matchesProject && matchesAssignee;
   });
 
@@ -50,7 +51,7 @@ const TasksPage = () => {
       title: '',
       description: '',
       projectId: '',
-      assignedEmployeeId: '',
+      assignedEmployeeIds: [],
       eta: '',
       referenceImages: [],
       status: 'Need to Do'
@@ -69,9 +70,12 @@ const TasksPage = () => {
 
   useEffect(() => {
     if (selectedProjectId) {
-      const currentEmpId = watch('assignedEmployeeId');
-      if (currentEmpId && !availableEmployees.some(emp => emp.id === currentEmpId)) {
-        setValue('assignedEmployeeId', '');
+      const currentEmpIds = watch('assignedEmployeeIds') || [];
+      const validEmpIds = currentEmpIds.filter(id => 
+        availableEmployees.some(emp => emp.id === id)
+      );
+      if (currentEmpIds.length !== validEmpIds.length) {
+        setValue('assignedEmployeeIds', validEmpIds);
       }
     }
   }, [selectedProjectId, availableEmployees, setValue, watch]);
@@ -80,7 +84,7 @@ const TasksPage = () => {
     setEditingTask(null);
     reset({
       title: '', description: '', projectId: '',
-      assignedEmployeeId: '', eta: '', referenceImages: [],
+      assignedEmployeeIds: [], eta: '', referenceImages: [],
       status: 'Need to Do'
     });
     setIsModalOpen(true);
@@ -97,18 +101,63 @@ const TasksPage = () => {
     setIsDetailModalOpen(true);
   };
 
-  const handleImagesChange = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = [...referenceImages];
+  const compressImage = (base64Str, maxWidth = 1024, maxHeight = 1024) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
 
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        newImages.push(reader.result);
-        setValue('referenceImages', [...newImages], { shouldValidate: true });
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
       };
-      reader.readAsDataURL(file);
     });
+  };
+
+  const handleImagesChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    try {
+      const uploadPromises = files.map(file => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            const compressed = await compressImage(reader.result);
+            resolve(compressed);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      });
+
+      const base64Images = await Promise.all(uploadPromises);
+      const updatedImages = [...referenceImages, ...base64Images];
+      setValue('referenceImages', updatedImages, { shouldValidate: true });
+      
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error("Error uploading images:", error);
+    }
   };
 
   const removeImage = (index) => {
@@ -118,7 +167,6 @@ const TasksPage = () => {
   };
 
   const onSubmit = (data) => {
-
     const finalData = { ...data };
     if (!finalData.referenceImages || finalData.referenceImages.length === 0) {
       finalData.referenceImages = ['https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500&q=80'];
@@ -142,7 +190,15 @@ const TasksPage = () => {
   };
 
   const getProjectName = (id) => projects.find(p => p.id === id)?.title || 'Unknown';
-  const getEmployeeName = (id) => employees.find(e => e.id === id)?.name || 'Unassigned';
+  const getEmployeeNames = (ids) => {
+    if (!ids || ids.length === 0) return 'Unassigned';
+    return ids.map(id => employees.find(e => e.id === id)?.name).filter(Boolean).join(', ');
+  };
+  
+  const getEmployeeList = (ids) => {
+    if (!ids || ids.length === 0) return [];
+    return ids.map(id => employees.find(e => e.id === id)).filter(Boolean);
+  };
 
   return (
     <div className="page-container">
@@ -205,8 +261,18 @@ const TasksPage = () => {
                     </td>
                     <td><span className="badge badge-project">{getProjectName(task.projectId)}</span></td>
                     <td>
-                      <div className="assignee-cell">
-                        <User size={14} /> {getEmployeeName(task.assignedEmployeeId)}
+                      <div className="assignee-cell-stack">
+                        {getEmployeeList(task.assignedEmployeeIds).slice(0, 2).map(emp => (
+                          <div key={emp.id} className="mini-assignee-pill" title={emp.name}>
+                            <User size={12} /> {emp.name.split(' ')[0]}
+                          </div>
+                        ))}
+                        {task.assignedEmployeeIds && task.assignedEmployeeIds.length > 2 && (
+                          <span className="plus-count">+{task.assignedEmployeeIds.length - 2} more</span>
+                        )}
+                        {(!task.assignedEmployeeIds || task.assignedEmployeeIds.length === 0) && (
+                          <span className="unassigned">Unassigned</span>
+                        )}
                       </div>
                     </td>
                     <td><span className={`status-pill status-${task.status.toLowerCase().replace(/ /g, '-')}`}>{task.status}</span></td>
@@ -253,23 +319,37 @@ const TasksPage = () => {
               {errors.projectId && <span className="error-message">{errors.projectId.message}</span>}
             </div>
 
-            <div className="input-group">
-              <label className="input-label">Assigned Employee</label>
-              <select
-                className={`input-field ${errors.assignedEmployeeId ? 'input-error' : ''}`}
-                disabled={!selectedProjectId}
-                {...register('assignedEmployeeId')}
-              >
-                <option value="">
-                  {!selectedProjectId 
-                    ? 'Select Project First' 
-                    : availableEmployees.length === 0 
-                      ? 'No Employees Assigned to this Project' 
-                      : 'Select Employee'}
-                </option>
-                {availableEmployees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-              </select>
-              {errors.assignedEmployeeId && <span className="error-message">{errors.assignedEmployeeId.message}</span>}
+            <div className="input-group full-width">
+              <label className="input-label">Assigned Employees</label>
+              <div className={`multi-select-container ${errors.assignedEmployeeIds ? 'input-error' : ''} ${!selectedProjectId ? 'disabled' : ''}`}>
+                {!selectedProjectId ? (
+                  <p className="helper-text">Select a project first to see available employees</p>
+                ) : availableEmployees.length === 0 ? (
+                  <p className="helper-text">No employees assigned to this project</p>
+                ) : (
+                  <div className="checkbox-grid">
+                    {availableEmployees.map(emp => (
+                      <label key={emp.id} className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          value={emp.id}
+                          checked={(watch('assignedEmployeeIds') || []).includes(emp.id)}
+                          onChange={(e) => {
+                            const currentIds = watch('assignedEmployeeIds') || [];
+                            if (e.target.checked) {
+                              setValue('assignedEmployeeIds', [...currentIds, emp.id], { shouldValidate: true });
+                            } else {
+                              setValue('assignedEmployeeIds', currentIds.filter(id => id !== emp.id), { shouldValidate: true });
+                            }
+                          }}
+                        />
+                        <span>{emp.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {errors.assignedEmployeeIds && <span className="error-message">{errors.assignedEmployeeIds.message}</span>}
             </div>
           </div>
 
@@ -302,10 +382,21 @@ const TasksPage = () => {
                   <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500&q=80" alt="Default Task" />
                 </div>
               )}
-              <label className="upload-add-btn">
+              <div 
+                className="upload-add-btn" 
+                onClick={() => fileInputRef.current?.click()}
+                title="Add reference images"
+              >
                 <Plus size={24} />
-                <input type="file" multiple accept="image/*" hidden onChange={handleImagesChange} />
-              </label>
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  multiple 
+                  accept="image/*" 
+                  hidden 
+                  onChange={handleImagesChange} 
+                />
+              </div>
             </div>
             {errors.referenceImages && <span className="error-message">{errors.referenceImages.message}</span>}
           </div>
@@ -334,7 +425,7 @@ const TasksPage = () => {
             <div className="detail-meta">
               <div className="meta-item">
                 <User size={16} />
-                <span>Assigned to: <strong>{getEmployeeName(selectedTask.assignedEmployeeId)}</strong></span>
+                <span>Assigned to: <strong>{getEmployeeNames(selectedTask.assignedEmployeeIds)}</strong></span>
               </div>
               <div className="meta-item">
                 <Calendar size={16} />

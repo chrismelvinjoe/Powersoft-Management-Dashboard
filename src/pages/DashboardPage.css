@@ -228,10 +228,6 @@
 .assignee-avatar-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-muted);
 }
 
 .assignee-avatar-group img {
@@ -239,6 +235,27 @@
   height: 24px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid var(--card-bg);
+  margin-left: -8px;
+}
+
+.assignee-avatar-group img:first-child {
+  margin-left: 0;
+}
+
+.assignee-more {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  margin-left: -8px;
 }
 
 .card-eta {
