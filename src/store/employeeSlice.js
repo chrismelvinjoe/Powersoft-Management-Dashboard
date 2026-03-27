@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { getApiBaseUrl } from '../utils/apiConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = getApiBaseUrl();
+console.log("Current API Base URL:", API_BASE_URL);
 const API_URL = `${API_BASE_URL}/employees`;
 
 export const fetchEmployees = createAsyncThunk('employees/fetchEmployees', async () => {
@@ -58,6 +58,12 @@ const employeeSlice = createSlice({
       })
       .addCase(deleteEmployeeAsync.fulfilled, (state, action) => {
         state.employees = state.employees.filter(emp => emp.id !== action.payload);
+      })
+      .addCase(deleteEmployeeAsync.rejected, (state, action) => {
+        // Optimistic/Resilient delete: update UI even on error
+        if (action.meta.arg) {
+          state.employees = state.employees.filter(emp => emp.id !== action.meta.arg);
+        }
       });
   },
 });

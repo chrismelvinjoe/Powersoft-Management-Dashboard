@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -32,6 +32,11 @@ const ProjectsPage = () => {
   const { employees } = useSelector(state => state.employees);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchProjects());
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
   const { register, handleSubmit, reset, setValue, watch, control, formState: { errors } } = useForm({
     resolver: yupResolver(schema),

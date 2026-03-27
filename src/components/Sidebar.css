@@ -75,5 +75,21 @@
   border-top: 1px solid var(--border-color);
   font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+.settings-btn {
+  margin-bottom: 0.75rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--primary);
+}
+
+.sidebar-footer p {
   text-align: center;
+  opacity: 0.5;
 }

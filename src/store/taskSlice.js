@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { getApiBaseUrl } from '../utils/apiConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = getApiBaseUrl();
+console.log("Current API Base URL:", API_BASE_URL);
 const API_URL = `${API_BASE_URL}/tasks`;
 
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {

@@ -2,7 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Calendar, User, Filter, MoreVertical, Briefcase, CheckSquare, FolderKanban } from 'lucide-react';
-import { moveTaskAsync } from '../store/taskSlice';
+import { moveTaskAsync, fetchTasks } from '../store/taskSlice';
+import { fetchProjects } from '../store/projectSlice';
+import { fetchEmployees } from '../store/employeeSlice';
+import { getApiBaseUrl } from '../utils/apiConfig';
 import PageHeader from '../components/PageHeader';
 import './DashboardPage.css';
 
@@ -21,6 +24,12 @@ const DashboardPage = () => {
   const { employees } = useSelector(state => state.employees);
 
   const [selectedProjectId, setSelectedProjectId] = useState('all');
+
+  React.useEffect(() => {
+    dispatch(fetchTasks());
+    dispatch(fetchProjects());
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
   const filteredTasks = useMemo(() => {
     if (selectedProjectId === 'all') return tasks;
@@ -55,18 +64,24 @@ const DashboardPage = () => {
       <PageHeader
         title="Project Board"
         actions={
-          <div className="filter-group">
-            <Filter size={18} className="filter-icon" />
-            <select
-              className="project-filter-select"
-              value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
-            >
-              <option value="all">All Projects</option>
-              {projects.map(p => (
-                <option key={p.id} value={p.id}>{p.title}</option>
-              ))}
-            </select>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div className={`api-status-pill ${getApiBaseUrl().includes('localhost') ? 'local' : 'cloud'}`}>
+              <span className="dot"></span>
+              {getApiBaseUrl().includes('localhost') ? 'Development Mode (Local)' : 'Production Mode (Cloud)'}
+            </div>
+            <div className="filter-group">
+              <Filter size={18} className="filter-icon" />
+              <select
+                className="project-filter-select"
+                value={selectedProjectId}
+                onChange={(e) => setSelectedProjectId(e.target.value)}
+              >
+                <option value="all">All Projects</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.title}</option>
+                ))}
+              </select>
+            </div>
           </div>
         }
       />

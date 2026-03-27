@@ -5,7 +5,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Plus, Edit2, Trash2, Calendar, User, Layers, Image as ImageIcon, Search, Filter } from 'lucide-react';
 import { fetchTasks, addTaskAsync, updateTaskAsync, deleteTaskAsync } from '../store/taskSlice';
-import { updateProjectAsync } from '../store/projectSlice';
+import { fetchProjects, updateProjectAsync } from '../store/projectSlice';
+import { fetchEmployees } from '../store/employeeSlice';
 import PageHeader from '../components/PageHeader';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
@@ -33,13 +34,20 @@ const TasksPage = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   
+  useEffect(() => {
+    dispatch(fetchTasks());
+    dispatch(fetchProjects());
+    dispatch(fetchEmployees());
+  }, [dispatch]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filterProject, setFilterProject] = useState('all');
   const [filterAssignee, setFilterAssignee] = useState('all');
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         task.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesProject = filterProject === 'all' || task.projectId === filterProject;
     const matchesAssignee = filterAssignee === 'all' || (task.assignedEmployeeIds && task.assignedEmployeeIds.includes(filterAssignee));
     return matchesSearch && matchesProject && matchesAssignee;
@@ -71,7 +79,7 @@ const TasksPage = () => {
   useEffect(() => {
     if (selectedProjectId) {
       const currentEmpIds = watch('assignedEmployeeIds') || [];
-      const validEmpIds = currentEmpIds.filter(id => 
+      const validEmpIds = currentEmpIds.filter(id =>
         availableEmployees.some(emp => emp.id === id)
       );
       if (currentEmpIds.length !== validEmpIds.length) {
@@ -128,6 +136,10 @@ const TasksPage = () => {
         ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', 0.7));
       };
+      img.onerror = () => {
+        console.error("Image loading failed for compression");
+        resolve(base64Str); // Fallback to original if compression fails
+      };
     });
   };
 
@@ -136,6 +148,7 @@ const TasksPage = () => {
     if (files.length === 0) return;
 
     try {
+      setIsCompressing(true);
       const uploadPromises = files.map(file => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -151,12 +164,14 @@ const TasksPage = () => {
       const base64Images = await Promise.all(uploadPromises);
       const updatedImages = [...referenceImages, ...base64Images];
       setValue('referenceImages', updatedImages, { shouldValidate: true });
-      
+
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     } catch (error) {
       console.error("Error uploading images:", error);
+    } finally {
+      setIsCompressing(false);
     }
   };
 
@@ -194,7 +209,7 @@ const TasksPage = () => {
     if (!ids || ids.length === 0) return 'Unassigned';
     return ids.map(id => employees.find(e => e.id === id)?.name).filter(Boolean).join(', ');
   };
-  
+
   const getEmployeeList = (ids) => {
     if (!ids || ids.length === 0) return [];
     return ids.map(id => employees.find(e => e.id === id)).filter(Boolean);
@@ -210,9 +225,9 @@ const TasksPage = () => {
       <div className="task-filters-bar">
         <div className="search-box">
           <Search size={18} />
-          <input 
-            type="text" 
-            placeholder="Search tasks..." 
+          <input
+            type="text"
+            placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -233,8 +248,8 @@ const TasksPage = () => {
       <div className="task-list">
         {filteredTasks.length === 0 ? (
           <div className="empty-state">
-            {tasks.length === 0 
-              ? "No tasks created yet. Start by adding a task to a project." 
+            {tasks.length === 0
+              ? "No tasks created yet. Start by adding a task to a project."
               : "No tasks match your filters."}
           </div>
         ) : (
@@ -369,7 +384,8 @@ const TasksPage = () => {
 
           <div className="image-upload-group">
             <label className="input-label">Reference Images</label>
-            <div className={`multi-image-preview ${errors.referenceImages ? 'input-error' : ''}`}>
+            <div className={`multi-image-preview ${errors.referenceImages ? 'input-error' : ''} ${isCompressing ? 'loading-images' : ''}`}>
+              {isCompressing && <div className="compression-overlay"><div className="spinner"></div><span>Optimizing...</span></div>}
               {referenceImages.length > 0 ? (
                 referenceImages.map((img, idx) => (
                   <div key={idx} className="preview-thumb">
@@ -382,19 +398,19 @@ const TasksPage = () => {
                   <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500&q=80" alt="Default Task" />
                 </div>
               )}
-              <div 
-                className="upload-add-btn" 
+              <div
+                className="upload-add-btn"
                 onClick={() => fileInputRef.current?.click()}
                 title="Add reference images"
               >
                 <Plus size={24} />
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   ref={fileInputRef}
-                  multiple 
-                  accept="image/*" 
-                  hidden 
-                  onChange={handleImagesChange} 
+                  multiple
+                  accept="image/*"
+                  hidden
+                  onChange={handleImagesChange}
                 />
               </div>
             </div>
@@ -419,9 +435,9 @@ const TasksPage = () => {
               <span className="badge badge-project">{getProjectName(selectedTask.projectId)}</span>
               <span className={`status-pill status-${selectedTask.status.toLowerCase().replace(/ /g, '-')}`}>{selectedTask.status}</span>
             </div>
-            
+
             <h2 className="detail-title">{selectedTask.title}</h2>
-            
+
             <div className="detail-meta">
               <div className="meta-item">
                 <User size={16} />

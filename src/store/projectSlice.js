@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { getApiBaseUrl } from '../utils/apiConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = getApiBaseUrl();
+console.log("Current API Base URL:", API_BASE_URL);
 const API_URL = `${API_BASE_URL}/projects`;
 
 export const fetchProjects = createAsyncThunk('projects/fetchProjects', async () => {
@@ -58,6 +58,12 @@ const projectSlice = createSlice({
       })
       .addCase(deleteProjectAsync.fulfilled, (state, action) => {
         state.projects = state.projects.filter(proj => proj.id !== action.payload);
+      })
+      .addCase(deleteProjectAsync.rejected, (state, action) => {
+        // Optimistic/Resilient delete
+        if (action.meta.arg) {
+          state.projects = state.projects.filter(proj => proj.id !== action.meta.arg);
+        }
       });
   },
 });
