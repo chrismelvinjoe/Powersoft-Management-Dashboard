@@ -49,7 +49,7 @@ const TasksPage = () => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesProject = filterProject === 'all' || task.projectId === filterProject;
-    const matchesAssignee = filterAssignee === 'all' || (task.assignedEmployeeIds && task.assignedEmployeeIds.includes(filterAssignee));
+    const matchesAssignee = filterAssignee === 'all' || (task.assignedEmployeeIds && (task.assignedEmployeeIds || []).includes(filterAssignee));
     return matchesSearch && matchesProject && matchesAssignee;
   });
 
@@ -73,7 +73,7 @@ const TasksPage = () => {
     if (!selectedProjectId) return [];
     const project = projects.find(p => p.id === selectedProjectId);
     if (!project) return [];
-    return employees.filter(emp => project.assignedEmployees.includes(emp.id));
+    return employees.filter(emp => (project.assignedEmployees || []).includes(emp.id));
   }, [selectedProjectId, employees, projects]);
 
   useEffect(() => {
@@ -283,7 +283,7 @@ const TasksPage = () => {
                           </div>
                         ))}
                         {task.assignedEmployeeIds && task.assignedEmployeeIds.length > 2 && (
-                          <span className="plus-count">+{task.assignedEmployeeIds.length - 2} more</span>
+                          <span className="plus-count">+{(task.assignedEmployeeIds || []).length - 2} more</span>
                         )}
                         {(!task.assignedEmployeeIds || task.assignedEmployeeIds.length === 0) && (
                           <span className="unassigned">Unassigned</span>

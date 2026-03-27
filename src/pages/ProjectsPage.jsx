@@ -150,7 +150,7 @@ const ProjectsPage = () => {
               <p className="project-desc">{project.description}</p>
               <div className="project-team">
                 <UsersIcon size={14} />
-                <span>{project.assignedEmployees.length} Employees Assigned</span>
+                <span>{(project.assignedEmployees || []).length} Employees Assigned</span>
               </div>
               <div className="project-actions">
                 <button onClick={() => openEditModal(project)} className="action-btn edit" title="Edit">
