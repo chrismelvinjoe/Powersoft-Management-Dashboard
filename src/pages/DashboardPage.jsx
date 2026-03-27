@@ -19,9 +19,12 @@ const COLUMNS = [
 
 const DashboardPage = () => {
   const dispatch = useDispatch();
-  const { tasks } = useSelector(state => state.tasks);
-  const { projects } = useSelector(state => state.projects);
-  const { employees } = useSelector(state => state.employees);
+  const { tasks, status: tasksStatus } = useSelector(state => state.tasks);
+  const { projects, status: projectsStatus } = useSelector(state => state.projects);
+  const { employees, status: employeesStatus } = useSelector(state => state.employees);
+
+  const isLoading = tasksStatus === 'loading' || projectsStatus === 'loading' || employeesStatus === 'loading';
+  const [showColdStartNotice, setShowColdStartNotice] = useState(false);
 
   const [selectedProjectId, setSelectedProjectId] = useState('all');
 
@@ -30,6 +33,17 @@ const DashboardPage = () => {
     dispatch(fetchProjects());
     dispatch(fetchEmployees());
   }, [dispatch]);
+
+  // Show "Waking up server" if loading takes > 3 seconds
+  React.useEffect(() => {
+    let timer;
+    if (isLoading) {
+      timer = setTimeout(() => setShowColdStartNotice(true), 3000);
+    } else {
+      setShowColdStartNotice(false);
+    }
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   const filteredTasks = useMemo(() => {
     if (selectedProjectId === 'all') return tasks;
@@ -85,6 +99,20 @@ const DashboardPage = () => {
           </div>
         }
       />
+
+      {isLoading && (
+        <div className="board-loading-overlay">
+          <div className="loader-container">
+            <div className="spinner"></div>
+            <h3>Syncing with Database...</h3>
+            {showColdStartNotice && (
+              <p className="cold-start-notice">
+                Backend is on Render Free Tier. Waking up server... (approx. 30s)
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="stats-grid">
         <div className="stat-card">

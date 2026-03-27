@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import ProjectsPage from './pages/ProjectsPage';
 import EmployeesPage from './pages/EmployeesPage';
 import TasksPage from './pages/TasksPage';
+import { fetchTasks } from './store/taskSlice';
+import { fetchProjects } from './store/projectSlice';
+import { fetchEmployees } from './store/employeeSlice';
 import { Menu, X } from 'lucide-react';
 import './App.css';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Pre-warm Render backend as soon as app loads
+    dispatch(fetchTasks());
+    dispatch(fetchProjects());
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);

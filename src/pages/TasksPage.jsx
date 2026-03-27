@@ -24,9 +24,10 @@ const schema = yup.object().shape({
 
 const TasksPage = () => {
   const dispatch = useDispatch();
-  const { tasks } = useSelector(state => state.tasks);
+  const { tasks, status } = useSelector(state => state.tasks);
   const { projects } = useSelector(state => state.projects);
   const { employees } = useSelector(state => state.employees);
+  const isLoading = status === 'loading';
 
   const fileInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -221,6 +222,15 @@ const TasksPage = () => {
         title="Task Management"
         actions={<Button onClick={openAddModal} icon={Plus}>Add Task</Button>}
       />
+
+      {isLoading && (
+        <div className="board-loading-overlay">
+          <div className="loader-container">
+            <div className="spinner"></div>
+            <h3>Loading Tasks...</h3>
+          </div>
+        </div>
+      )}
 
       <div className="task-filters-bar">
         <div className="search-box">

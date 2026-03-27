@@ -29,8 +29,9 @@ const schema = yup.object().shape({
 
 const ProjectsPage = () => {
   const dispatch = useDispatch();
-  const { projects } = useSelector(state => state.projects);
+  const { projects, status } = useSelector(state => state.projects);
   const { employees } = useSelector(state => state.employees);
+  const isLoading = status === 'loading';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
 
@@ -131,6 +132,15 @@ const ProjectsPage = () => {
         title="Project Management" 
         actions={<Button onClick={openAddModal} icon={Plus}>New Project</Button>}
       />
+
+      {isLoading && (
+        <div className="board-loading-overlay">
+          <div className="loader-container">
+            <div className="spinner"></div>
+            <h3>Loading Projects...</h3>
+          </div>
+        </div>
+      )}
 
       <div className="project-grid">
         {projects.length === 0 ? (
