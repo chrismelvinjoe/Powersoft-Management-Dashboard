@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Plus, Edit2, Trash2, Mail, Briefcase } from 'lucide-react';
-import { addEmployeeAsync, updateEmployeeAsync, deleteEmployeeAsync } from '../store/employeeSlice';
+import { fetchEmployees, addEmployeeAsync, updateEmployeeAsync, deleteEmployeeAsync } from '../store/employeeSlice';
 import PageHeader from '../components/PageHeader';
 import Button from '../components/Button';
 import Modal from '../components/Modal';

@@ -5,6 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Plus, Edit2, Trash2, Calendar, Users as UsersIcon, Clock } from 'lucide-react';
 import { fetchProjects, addProjectAsync, updateProjectAsync, deleteProjectAsync } from '../store/projectSlice';
+import { fetchEmployees } from '../store/employeeSlice';
 import PageHeader from '../components/PageHeader';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
